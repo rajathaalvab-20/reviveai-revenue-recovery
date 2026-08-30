@@ -1,0 +1,13 @@
+{
+    "roc_auc": 0.8629173378743191,
+    "pr_auc": 0.8701689913061675,
+    "accuracy": 0.775581084691424,
+    "precision": 0.8080251770259638,
+    "recall": 0.7647058823529411,
+    "f1": 0.7857689364957919,
+    "brier_score": 0.15008761439761908,
+    "test_transactions": 7486,
+    "total_revenue_at_risk": 31126981.73,
+    "actual_recovered_revenue": 16656250.29,
+    "model_expected_recovery": 16287923.090683663
+}

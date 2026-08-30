@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Testing / coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated results
+src/actions/results/
+results/
+outputs/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Model artifacts
+*.pth
+*.pt
+*.ckpt
+*.joblib
+*.pkl
+
+# Jupyter
+.ipynb_checkpoints/
+# Generated policy audit records
+src/policy/audit/*.json
+
+# Generated model evaluation artifacts
+src/risk_model/evaluation/*.png
+src/risk_model/evaluation/*.csv

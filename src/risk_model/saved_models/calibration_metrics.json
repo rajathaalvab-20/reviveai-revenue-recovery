@@ -1,0 +1,126 @@
+{
+    "model_version": "V4",
+    "selected_method": "isotonic",
+    "selection_rule": {
+        "primary": "validation_brier_score",
+        "secondary": "validation_log_loss",
+        "test_used_for_selection": false
+    },
+    "validation_metrics": {
+        "base": {
+            "roc_auc": 0.8615210781671159,
+            "pr_auc": 0.868363511175507,
+            "accuracy": 0.7740468227424749,
+            "precision": 0.8180300500834724,
+            "recall": 0.7396226415094339,
+            "f1": 0.7768529528339279,
+            "brier_score": 0.15092636273732718,
+            "log_loss": 0.46165050484045694
+        },
+        "sigmoid": {
+            "roc_auc": 0.8615210781671159,
+            "pr_auc": 0.868363511175507,
+            "accuracy": 0.774448160535117,
+            "precision": 0.7976592977893368,
+            "recall": 0.7715723270440251,
+            "f1": 0.7843989769820972,
+            "brier_score": 0.1504382022085104,
+            "log_loss": 0.4601883944116088
+        },
+        "isotonic": {
+            "roc_auc": 0.8632754357592093,
+            "pr_auc": 0.8639896075661104,
+            "accuracy": 0.777123745819398,
+            "precision": 0.7851321313904668,
+            "recall": 0.799748427672956,
+            "f1": 0.7923728813559322,
+            "brier_score": 0.14924323235952536,
+            "log_loss": 0.45549057834088774
+        }
+    },
+    "test_metrics": {
+        "base": {
+            "roc_auc": 0.8623314065303093,
+            "pr_auc": 0.8690253025868846,
+            "accuracy": 0.775981832754475,
+            "precision": 0.820785597381342,
+            "recall": 0.7468354430379747,
+            "f1": 0.7820662768031189,
+            "brier_score": 0.15003488088301348,
+            "log_loss": 0.45716374187024483
+        },
+        "sigmoid": {
+            "roc_auc": 0.8623314065303093,
+            "pr_auc": 0.8690253025868846,
+            "accuracy": 0.7757146673791077,
+            "precision": 0.8005115089514067,
+            "recall": 0.7768677091089601,
+            "f1": 0.7885124071041693,
+            "brier_score": 0.1495209555752628,
+            "log_loss": 0.45604365442394473
+        },
+        "isotonic": {
+            "roc_auc": 0.8617954455594683,
+            "pr_auc": 0.8602349622422321,
+            "accuracy": 0.7779855730697302,
+            "precision": 0.7876063183475092,
+            "recall": 0.8044179697195334,
+            "f1": 0.7959233791748527,
+            "brier_score": 0.1498648815339829,
+            "log_loss": 0.4656200380556485
+        }
+    },
+    "platt_parameters": {
+        "a": 0.9735403762634823,
+        "b": 0.13676001556989484
+    },
+    "data_split": {
+        "training_rows": 35039,
+        "validation_rows": 7475,
+        "test_rows": 7486
+    },
+    "features": [
+        "amount",
+        "customer_age_days",
+        "previous_transactions",
+        "previous_success_rate",
+        "attempt_count",
+        "time_since_failure_min",
+        "hour_of_day",
+        "is_weekend",
+        "log_amount",
+        "high_value_transaction",
+        "very_high_value_transaction",
+        "customer_reliability",
+        "customer_history_strength",
+        "is_established_customer",
+        "is_long_term_customer",
+        "retry_pressure",
+        "has_previous_retry",
+        "retry_limit_reached",
+        "log_time_since_failure",
+        "failure_recent",
+        "failure_very_recent",
+        "failure_old",
+        "is_business_hour",
+        "is_night",
+        "is_transient_failure",
+        "is_customer_action_failure",
+        "is_hard_failure",
+        "retryable_failure",
+        "requires_customer_action",
+        "reliability_x_transient",
+        "reliability_x_hard_failure",
+        "attempt_x_transient",
+        "attempt_x_hard_failure",
+        "value_x_reliability",
+        "value_x_transient",
+        "payment_method",
+        "customer_type",
+        "failure_code",
+        "failure_type"
+    ],
+    "target": "actual_recovery",
+    "threshold": 0.5,
+    "seed": 42
+}
