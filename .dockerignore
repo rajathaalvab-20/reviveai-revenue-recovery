@@ -1,0 +1,11 @@
+.venv
+.git
+__pycache__
+.pytest_cache
+.coverage
+htmlcov
+data
+results
+project.txt
+project_contents.txt
+*.pyc

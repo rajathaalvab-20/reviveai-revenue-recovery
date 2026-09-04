@@ -6,7 +6,6 @@ import pandas as pd
 
 from feature_engineering import create_features, FEATURES
 
-
 MODEL_PATH = os.path.join(
     os.path.dirname(__file__),
     "saved_models",
@@ -178,10 +177,27 @@ def detect_risk(payment):
                 "Base model information missing from calibration artifact."
             )
 
-        if not os.path.exists(base_model_path):
+        # Convert Windows paths to a Docker-compatible path.
+        base_model_path = str(base_model_path).replace("\\", "/")
+
+        # If the artifact contains an absolute Windows path,
+        # use the model location inside the project instead.
+        marker = "saved_models/"
+
+        if marker in base_model_path:
+            relative_model_path = base_model_path.split(marker, 1)[1]
+
+            base_model_path = os.path.join(
+                os.path.dirname(__file__),
+                "saved_models",
+                relative_model_path
+            )
+
+        elif not os.path.isabs(base_model_path):
             project_root = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..")
             )
+
             base_model_path = os.path.join(
                 project_root,
                 base_model_path

@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ReviveAI — Revenue Recovery</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">R</div>
+
+            <div class="brand-copy">
+                <h1>ReviveAI</h1>
+                <span>Revenue Recovery</span>
+            </div>
+        </div>
+
+
+        <nav class="navigation">
+
+            <button class="nav-item active" data-section="recovery">
+                <span class="nav-icon">⌁</span>
+                <span>Recovery</span>
+            </button>
+
+            <button class="nav-item" data-section="transactions">
+                <span class="nav-icon">▤</span>
+                <span>Transactions</span>
+            </button>
+
+            <button class="nav-item" data-section="analytics">
+                <span class="nav-icon">◔</span>
+                <span>Analytics</span>
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>System Online</strong>
+                    <small>FastAPI connected</small>
+                </div>
+
+            </div>
+
+            <div class="version">
+                ReviveAI API v1.0.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+
+        <!-- =================================================
+             RECOVERY SECTION
+        ================================================== -->
+
+        <section id="recoverySection" class="page-section">
+
+            <header class="topbar">
+
+                <div>
+
+                    <div class="eyebrow">
+                        RECOVERY CONTROL CENTER
+                    </div>
+
+                    <h2>Payment Recovery</h2>
+
+                    <p class="subtitle">
+                        Evaluate failed payments and execute safe recovery actions.
+                    </p>
+
+                </div>
+
+
+                <div class="api-indicator">
+
+                    <span class="status-dot"></span>
+
+                    <span>API Connected</span>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 ENGINE CARDS
+            ================================================== -->
+
+            <section class="engine-grid">
+
+                <div class="engine-card">
+
+                    <div class="engine-top">
+                        <span>RECOVERY ENGINE</span>
+                        <div class="engine-icon">↗</div>
+                    </div>
+
+                    <strong>V4</strong>
+
+                    <p>Risk model</p>
+
+                </div>
+
+
+                <div class="engine-card">
+
+                    <div class="engine-top">
+                        <span>POLICY ENGINE</span>
+                        <div class="engine-icon">✓</div>
+                    </div>
+
+                    <strong>V1</strong>
+
+                    <p>Guardrails enabled</p>
+
+                </div>
+
+
+                <div class="engine-card">
+
+                    <div class="engine-top">
+                        <span>ACTION ENGINE</span>
+                        <div class="engine-icon">⚡</div>
+                    </div>
+
+                    <strong>V2</strong>
+
+                    <p>Simulation mode</p>
+
+                </div>
+
+
+                <div class="engine-card safety-card">
+
+                    <div class="engine-top">
+                        <span>SAFETY</span>
+                        <div class="engine-icon">✓</div>
+                    </div>
+
+                    <strong>SAFE</strong>
+
+                    <p>Verification enabled</p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 WORKSPACE
+            ================================================== -->
+
+            <section class="workspace">
+
+
+                <!-- =================================================
+                     INPUT
+                ================================================== -->
+
+                <div class="panel form-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <div class="panel-eyebrow">
+                                INPUT
+                            </div>
+
+                            <h3>Payment Event</h3>
+
+                        </div>
+
+                        <span class="api-badge">
+                            POST /api/v1/recover
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-intro">
+
+                        <div class="intro-icon">↳</div>
+
+                        <div>
+                            <strong>Recovery request</strong>
+
+                            <p>
+                                Provide the failed payment details for evaluation.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <form id="recoveryForm">
+
+
+                        <div class="form-group">
+
+                            <label for="transaction_id">
+                                Transaction ID
+                            </label>
+
+                            <input
+                                id="transaction_id"
+                                name="transaction_id"
+                                type="text"
+                                value="API_TEST_002"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-row">
+
+                            <div class="form-group">
+
+                                <label for="amount">
+                                    Amount
+                                </label>
+
+                                <div class="input-prefix">
+                                    <span>₹</span>
+
+                                    <input
+                                        id="amount"
+                                        name="amount"
+                                        type="number"
+                                        value="5000"
+                                        min="0"
+                                        step="0.01"
+                                        required
+                                    >
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="payment_method">
+                                    Payment Method
+                                </label>
+
+                                <select id="payment_method">
+
+                                    <option value="CARD">CARD</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="NETBANKING">NETBANKING</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-row">
+
+                            <div class="form-group">
+
+                                <label for="customer_type">
+                                    Customer Type
+                                </label>
+
+                                <select id="customer_type">
+
+                                    <option value="RETURNING">
+                                        RETURNING
+                                    </option>
+
+                                    <option value="NEW">
+                                        NEW
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="failure_type">
+                                    Failure Type
+                                </label>
+
+                                <select id="failure_type">
+
+                                    <option value="TRANSIENT">
+                                        TRANSIENT
+                                    </option>
+
+                                    <option value="HARD">
+                                        HARD
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="failure_code">
+                                Failure Code
+                            </label>
+
+                            <select id="failure_code">
+
+                                <option value="BANK_TIMEOUT">
+                                    BANK_TIMEOUT
+                                </option>
+
+                                <option value="NETWORK_ERROR">
+                                    NETWORK_ERROR
+                                </option>
+
+                                <option value="INSUFFICIENT_FUNDS">
+                                    INSUFFICIENT_FUNDS
+                                </option>
+
+                                <option value="CARD_DECLINED">
+                                    CARD_DECLINED
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-row">
+
+                            <div class="form-group">
+
+                                <label for="attempt_count">
+                                    Attempt Count
+                                </label>
+
+                                <input
+                                    id="attempt_count"
+                                    type="number"
+                                    value="1"
+                                    min="0"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="previous_transactions">
+                                    Previous Transactions
+                                </label>
+
+                                <input
+                                    id="previous_transactions"
+                                    type="number"
+                                    value="25"
+                                    min="0"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="previous_success_rate">
+                                Previous Success Rate
+                            </label>
+
+                            <div class="rate-input">
+
+                                <input
+                                    id="previous_success_rate"
+                                    type="number"
+                                    value="0.92"
+                                    min="0"
+                                    max="1"
+                                    step="0.01"
+                                >
+
+                                <span>0–1</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-note">
+
+                            <span>i</span>
+
+                            <p>
+                                Recovery decisions are evaluated by the backend
+                                policy and risk pipeline.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            id="recoverButton"
+                            class="primary-button"
+                        >
+
+                            <span id="buttonText">
+                                Run Recovery
+                            </span>
+
+                            <span
+                                id="buttonLoader"
+                                class="loader hidden"
+                            >
+                                <span class="spinner"></span>
+                                Processing recovery...
+                            </span>
+
+                            <span class="button-arrow">
+                                →
+                            </span>
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <!-- =================================================
+                     RESULT
+                ================================================== -->
+
+                <div class="panel result-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <div class="panel-eyebrow">
+                                OUTPUT
+                            </div>
+
+                            <h3>Recovery Decision</h3>
+
+                        </div>
+
+                        <span
+                            id="resultStatus"
+                            class="status-badge neutral"
+                        >
+                            Waiting
+                        </span>
+
+                    </div>
+
+
+                    <!-- EMPTY -->
+
+                    <div
+                        id="emptyState"
+                        class="empty-state"
+                    >
+
+                        <div class="empty-visual">
+
+                            <div class="empty-circle">
+                                <span>⌁</span>
+                            </div>
+
+                        </div>
+
+                        <h4>Ready for evaluation</h4>
+
+                        <p>
+                            Submit a payment event to run the ReviveAI
+                            recovery pipeline.
+                        </p>
+
+                    </div>
+
+
+                    <!-- RESULT -->
+
+                    <div
+                        id="resultContent"
+                        class="hidden"
+                    >
+
+
+                        <!-- =================================================
+                             DECISION HERO
+                        ================================================== -->
+
+                        <div class="decision-hero">
+
+                            <div class="decision-copy">
+
+                                <div class="decision-label">
+                                    FINAL DECISION
+                                </div>
+
+                                <h2 id="decisionTitle">
+                                    Recovery complete
+                                </h2>
+
+                                <p id="decisionSubtitle">
+                                    Recovery pipeline completed successfully.
+                                </p>
+
+                            </div>
+
+
+                            <div class="decision-amount">
+
+                                <span>
+                                    Revenue recovered
+                                </span>
+
+                                <strong id="heroRevenue">
+                                    ₹0.00
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             PIPELINE
+                        ================================================== -->
+
+                        <div class="pipeline-section">
+
+                            <div class="section-heading">
+
+                                <div>
+
+                                    <span class="section-kicker">
+                                        DECISION PIPELINE
+                                    </span>
+
+                                    <h4>
+                                        Recovery workflow
+                                    </h4>
+
+                                </div>
+
+                                <span class="pipeline-status">
+                                    Completed
+                                </span>
+
+                            </div>
+
+
+                            <div class="pipeline">
+
+                                <div class="pipeline-step completed">
+
+                                    <div class="step-circle">
+                                        01
+                                    </div>
+
+                                    <div class="step-line"></div>
+
+                                    <span>Payment</span>
+
+                                </div>
+
+
+                                <div class="pipeline-step completed">
+
+                                    <div class="step-circle">
+                                        02
+                                    </div>
+
+                                    <div class="step-line"></div>
+
+                                    <span>Risk</span>
+
+                                </div>
+
+
+                                <div class="pipeline-step completed">
+
+                                    <div class="step-circle">
+                                        03
+                                    </div>
+
+                                    <div class="step-line"></div>
+
+                                    <span>Diagnosis</span>
+
+                                </div>
+
+
+                                <div class="pipeline-step completed">
+
+                                    <div class="step-circle">
+                                        04
+                                    </div>
+
+                                    <div class="step-line"></div>
+
+                                    <span>Policy</span>
+
+                                </div>
+
+
+                                <div class="pipeline-step completed">
+
+                                    <div class="step-circle">
+                                        05
+                                    </div>
+
+                                    <div class="step-line"></div>
+
+                                    <span>Action</span>
+
+                                </div>
+
+
+                                <div class="pipeline-step completed">
+
+                                    <div class="step-circle">
+                                        06
+                                    </div>
+
+                                    <span>Verify</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             RISK
+                        ================================================== -->
+
+                        <div class="result-section">
+
+                            <div class="section-heading">
+
+                                <div>
+
+                                    <span class="section-kicker">
+                                        RISK ASSESSMENT
+                                    </span>
+
+                                    <h4>
+                                        Recovery probability
+                                    </h4>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="risk-layout">
+
+                                <div class="probability-card">
+
+                                    <div class="probability-header">
+
+                                        <span>
+                                            Recovery Probability
+                                        </span>
+
+                                        <strong id="recoveryProbability">
+                                            —
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="probability-track">
+
+                                        <div
+                                            id="probabilityBar"
+                                            class="probability-fill"
+                                        ></div>
+
+                                    </div>
+
+                                    <p>
+                                        Estimated likelihood that this
+                                        payment can be recovered.
+                                    </p>
+
+                                </div>
+
+
+                                <div class="risk-level-card">
+
+                                    <span>
+                                        Risk Level
+                                    </span>
+
+                                    <span
+                                        id="riskLevel"
+                                        class="risk-badge"
+                                    >
+                                        —
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             DIAGNOSIS
+                        ================================================== -->
+
+                        <div class="result-section">
+
+                            <div class="section-heading">
+
+                                <div>
+
+                                    <span class="section-kicker">
+                                        DIAGNOSIS
+                                    </span>
+
+                                    <h4>
+                                        Failure analysis
+                                    </h4>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="diagnosis-main">
+
+                                <div class="diagnosis-category">
+
+                                    <span>
+                                        Category
+                                    </span>
+
+                                    <strong id="diagnosisCategory">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="diagnosis-strategy">
+
+                                    <span>
+                                        Recommended strategy
+                                    </span>
+
+                                    <strong id="recoveryStrategy">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="diagnosis-flags">
+
+                                <div class="flag">
+
+                                    <span class="flag-icon">✓</span>
+
+                                    <div>
+                                        <span>Retryable</span>
+                                        <strong id="retryable">—</strong>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="flag">
+
+                                    <span class="flag-icon">⚡</span>
+
+                                    <div>
+                                        <span>Automatic Recovery</span>
+                                        <strong id="automaticRecovery">—</strong>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="reason-box">
+
+                                <span class="reason-icon">
+                                    i
+                                </span>
+
+                                <p id="diagnosisReason">
+                                    —
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             POLICY
+                        ================================================== -->
+
+                        <div class="result-section">
+
+                            <div class="section-heading">
+
+                                <div>
+
+                                    <span class="section-kicker">
+                                        POLICY
+                                    </span>
+
+                                    <h4>
+                                        Guardrail decision
+                                    </h4>
+
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                id="policyCard"
+                                class="policy-card"
+                            >
+
+                                <div class="policy-decision">
+
+                                    <span
+                                        id="policyIcon"
+                                        class="policy-icon"
+                                    >
+                                        ✓
+                                    </span>
+
+                                    <div>
+
+                                        <span>
+                                            Policy Decision
+                                        </span>
+
+                                        <strong id="policyDecision">
+                                            —
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="policy-reason">
+
+                                    <span>
+                                        Reason
+                                    </span>
+
+                                    <p id="policyReason">
+                                        —
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             ACTION
+                        ================================================== -->
+
+                        <div class="result-section">
+
+                            <div class="section-heading">
+
+                                <div>
+
+                                    <span class="section-kicker">
+                                        ACTION
+                                    </span>
+
+                                    <h4>
+                                        Recovery execution
+                                    </h4>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="action-grid">
+
+                                <div class="action-item">
+
+                                    <span>
+                                        Action
+                                    </span>
+
+                                    <strong id="actionName">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="action-item">
+
+                                    <span>
+                                        Execution
+                                    </span>
+
+                                    <strong id="actionExecuted">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             VERIFICATION
+                        ================================================== -->
+
+                        <div class="result-section">
+
+                            <div class="section-heading">
+
+                                <div>
+
+                                    <span class="section-kicker">
+                                        VERIFICATION
+                                    </span>
+
+                                    <h4>
+                                        Recovery outcome
+                                    </h4>
+
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                id="verificationCard"
+                                class="verification-card"
+                            >
+
+                                <div class="verification-status">
+
+                                    <span>
+                                        Status
+                                    </span>
+
+                                    <strong id="verificationStatus">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="verification-revenue">
+
+                                    <span>
+                                        Revenue Recovered
+                                    </span>
+
+                                    <strong id="revenueRecovered">
+                                        ₹0.00
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="verification-message">
+
+                                <span>↳</span>
+
+                                <p id="verificationReason">
+                                    —
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- =====================================================
+             TRANSACTIONS
+        ====================================================== -->
+
+        <section
+            id="transactionsSection"
+            class="page-section hidden"
+        >
+
+            <header class="section-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        TRANSACTION MONITOR
+                    </div>
+
+                    <h2>Transaction History</h2>
+
+                    <p>
+                        Review recovery decisions generated during this session.
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <div class="panel transactions-panel">
+
+                <div class="table-toolbar">
+
+                    <div>
+
+                        <span class="section-kicker">
+                            RECOVERY EVENTS
+                        </span>
+
+                        <h3>Recent transactions</h3>
+
+                    </div>
+
+                    <span class="event-count" id="transactionCount">
+                        0 events
+                    </span>
+
+                </div>
+
+
+                <div class="transaction-table">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Amount</th>
+                                <th>Failure</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="transactionTableBody">
+
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    class="empty-table"
+                                >
+                                    No transactions yet.
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ANALYTICS
+        ====================================================== -->
+
+        <section
+            id="analyticsSection"
+            class="page-section hidden"
+        >
+
+            <header class="section-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        RECOVERY INTELLIGENCE
+                    </div>
+
+                    <h2>Analytics</h2>
+
+                    <p>
+                        Operational metrics generated from recovery decisions.
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <div class="analytics-grid">
+
+                <div class="analytics-card">
+
+                    <span>Total Events</span>
+
+                    <strong id="totalTransactions">
+                        0
+                    </strong>
+
+                    <small>
+                        Recovery evaluations
+                    </small>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span>Recovered</span>
+
+                    <strong id="totalRecovered">
+                        0
+                    </strong>
+
+                    <small>
+                        Successful actions
+                    </small>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span>Recovery Rate</span>
+
+                    <strong id="recoveryRate">
+                        0.0%
+                    </strong>
+
+                    <small>
+                        Successful / total events
+                    </small>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span>Revenue Recovered</span>
+
+                    <strong id="totalRevenue">
+                        ₹0.00
+                    </strong>
+
+                    <small>
+                        Verified recovery value
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-panels">
+
+                <div class="panel analytics-panel">
+
+                    <div class="table-toolbar">
+
+                        <div>
+
+                            <span class="section-kicker">
+                                OUTCOMES
+                            </span>
+
+                            <h3>Recovery Outcomes</h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="outcome-list">
+
+                        <div class="outcome-row">
+
+                            <div>
+                                <span class="outcome-dot recovered"></span>
+                                Recovered
+                            </div>
+
+                            <strong id="analyticsRecovered">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="outcome-row">
+
+                            <div>
+                                <span class="outcome-dot blocked"></span>
+                                Blocked
+                            </div>
+
+                            <strong id="analyticsBlocked">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="outcome-row">
+
+                            <div>
+                                <span class="outcome-dot error"></span>
+                                Errors
+                            </div>
+
+                            <strong id="analyticsErrors">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel analytics-panel">
+
+                    <div class="table-toolbar">
+
+                        <div>
+
+                            <span class="section-kicker">
+                                SAFETY
+                            </span>
+
+                            <h3>Guardrail Performance</h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="guardrail-list">
+
+                        <div>
+                            <span class="check">✓</span>
+                            Automatic recovery
+                            <strong>Policy controlled</strong>
+                        </div>
+
+                        <div>
+                            <span class="check">✓</span>
+                            Blocked actions
+                            <strong>Action skipped</strong>
+                        </div>
+
+                        <div>
+                            <span class="check">✓</span>
+                            Verification
+                            <strong>Deterministic</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FOOTER
+        ====================================================== -->
+
+        <footer class="footer">
+
+            <span>
+                ReviveAI — Safe Automated Revenue Recovery
+            </span>
+
+            <span>
+                Simulation Mode
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>

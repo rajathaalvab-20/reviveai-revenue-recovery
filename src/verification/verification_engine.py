@@ -1,7 +1,10 @@
+from __future__ import annotations
+
+import hashlib
 import json
 import os
-import hashlib
 from datetime import datetime, timezone
+from typing import Any
 
 
 # ============================================================
@@ -9,61 +12,79 @@ from datetime import datetime, timezone
 # ============================================================
 #
 # Pipeline:
+#
 #   Risk -> Diagnosis -> Policy -> Action -> Verification
 #
-# Purpose:
-#   Verify whether the recovery action actually succeeded.
+# Verification has TWO modes:
+#
+# 1. DATASET GROUND-TRUTH MODE
+#    Used by the simulation when payment_events.csv contains:
+#
+#       actual_recovery
+#       recovered_amount
+#
+#    This is the preferred evaluation mode.
+#
+# 2. DETERMINISTIC FALLBACK MODE
+#    Used when no ground truth is supplied.
+#
+#    This keeps the verification engine usable independently
+#    and preserves deterministic unit-test behaviour.
 #
 # IMPORTANT:
-#   This implementation uses deterministic simulation.
-#   No real payment API is called.
 #
-# Design goals:
-#   - Deterministic verification
-#   - Strong input validation
-#   - Explicit recovery states
-#   - Revenue recovery measurement
-#   - Safe handling of non-executed actions
-#   - Audit-friendly result structure
-#   - Testable CLI/demo entry point
+# The production/simulation evaluation MUST pass ground truth
+# whenever it is available.
+#
+# The deterministic fallback is NOT used when dataset ground
+# truth is available.
 # ============================================================
 
 
-VERIFICATION_VERSION = "V1"
+VERIFICATION_VERSION = "V2"
 
-VERIFICATION_DIR = "src/verification/results"
+
+VERIFICATION_DIR = os.path.join(
+    os.path.dirname(__file__),
+    "results",
+)
 
 os.makedirs(
     VERIFICATION_DIR,
-    exist_ok=True
+    exist_ok=True,
 )
 
 
-# Actions that can directly recover revenue.
+# ============================================================
+# ACTION DEFINITIONS
+# ============================================================
+
 RECOVERABLE_ACTIONS = {
     "RETRY_PAYMENT",
     "PAYMENT_REMINDER",
-    "REQUEST_PAYMENT_METHOD_UPDATE"
+    "REQUEST_PAYMENT_METHOD_UPDATE",
 }
 
 
-# Actions that require downstream processing.
 PENDING_ACTIONS = {
     "ESCALATE",
-    "HUMAN_REVIEW"
+    "HUMAN_REVIEW",
 }
 
 
 # ============================================================
-# VALIDATION
+# INPUT VALIDATION
 # ============================================================
 
-def validate_action_result(action_result):
+def validate_action_result(
+    action_result: dict[str, Any],
+) -> None:
     """
-    Validate the result received from the Action Engine.
+    Validate the Action Engine result.
 
-    The verification layer must reject malformed action results
-    instead of silently attempting verification.
+    Raises:
+        TypeError
+        ValueError
     """
 
     if not isinstance(action_result, dict):
@@ -71,17 +92,17 @@ def validate_action_result(action_result):
             "action_result must be a dictionary."
         )
 
-    required = [
+    required_fields = [
         "transaction_id",
         "action_id",
         "action",
         "executed",
-        "amount"
+        "amount",
     ]
 
     missing = [
         field
-        for field in required
+        for field in required_fields
         if field not in action_result
     ]
 
@@ -93,7 +114,7 @@ def validate_action_result(action_result):
 
     if not isinstance(
         action_result["executed"],
-        bool
+        bool,
     ):
         raise TypeError(
             "executed must be boolean."
@@ -142,20 +163,149 @@ def validate_action_result(action_result):
 
 
 # ============================================================
-# DETERMINISTIC RECOVERY SIMULATION
+# GROUND TRUTH VALIDATION
+# ============================================================
+
+def _parse_bool(
+    value: Any,
+) -> bool:
+    """
+    Convert common CSV/API boolean representations
+    into a real Python boolean.
+    """
+
+    if isinstance(value, bool):
+        return value
+
+    if isinstance(value, int):
+        if value in (0, 1):
+            return bool(value)
+
+    if isinstance(value, float):
+        if value in (0.0, 1.0):
+            return bool(value)
+
+    if isinstance(value, str):
+
+        normalized = value.strip().lower()
+
+        if normalized in {
+            "1",
+            "true",
+            "yes",
+            "y",
+            "recovered",
+        }:
+            return True
+
+        if normalized in {
+            "0",
+            "false",
+            "no",
+            "n",
+            "not_recovered",
+            "not recovered",
+        }:
+            return False
+
+    raise ValueError(
+        "actual_recovery must be boolean-like "
+        "(0/1, true/false, yes/no)."
+    )
+
+
+def validate_ground_truth(
+    ground_truth: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Validate and normalize payment ground truth.
+
+    Required fields:
+
+        actual_recovery
+        recovered_amount
+
+    Optional fields are preserved.
+    """
+
+    if not isinstance(
+        ground_truth,
+        dict,
+    ):
+        raise TypeError(
+            "ground_truth must be a dictionary."
+        )
+
+    required_fields = [
+        "actual_recovery",
+        "recovered_amount",
+    ]
+
+    missing = [
+        field
+        for field in required_fields
+        if field not in ground_truth
+    ]
+
+    if missing:
+        raise ValueError(
+            "Payment ground truth missing fields: "
+            + ", ".join(missing)
+        )
+
+    actual_recovery = _parse_bool(
+        ground_truth["actual_recovery"]
+    )
+
+    try:
+        recovered_amount = float(
+            ground_truth["recovered_amount"]
+        )
+    except (TypeError, ValueError) as error:
+        raise TypeError(
+            "recovered_amount must be numeric."
+        ) from error
+
+    if recovered_amount < 0:
+        raise ValueError(
+            "recovered_amount cannot be negative."
+        )
+
+    normalized = dict(
+        ground_truth
+    )
+
+    normalized[
+        "actual_recovery"
+    ] = actual_recovery
+
+    normalized[
+        "recovered_amount"
+    ] = recovered_amount
+
+    return normalized
+
+
+# ============================================================
+# DETERMINISTIC FALLBACK
 # ============================================================
 
 def deterministic_recovery_check(
-    transaction_id,
-    action_id,
-    action
-):
+    transaction_id: str,
+    action_id: str,
+    action: str,
+) -> bool:
     """
-    Deterministically simulate whether an executed recovery
-    action successfully recovered the payment.
+    Deterministically simulate recovery.
 
-    SHA-256 is used so the same inputs always produce the
-    same result across executions.
+    This function exists primarily for:
+        - standalone verification
+        - backwards compatibility
+        - unit tests
+
+    IMPORTANT:
+
+    It is NOT used when dataset ground truth is supplied.
     """
 
     seed = (
@@ -172,36 +322,44 @@ def deterministic_recovery_check(
 
     value = int(
         digest[:8],
-        16
+        16,
     )
 
+    # Deterministic 70% simulated recovery.
     return (
         value % 100
     ) < 70
 
 
 # ============================================================
-# RESULT BUILDERS
+# TIMESTAMP
 # ============================================================
 
-def _timestamp():
+def _timestamp() -> str:
     return datetime.now(
         timezone.utc
     ).isoformat()
 
 
+# ============================================================
+# BASE RESULT
+# ============================================================
+
 def _base_result(
-    transaction_id,
-    action_id,
-    action
-):
+    transaction_id: str,
+    action_id: str,
+    action: str,
+) -> dict[str, Any]:
+
     return {
         "status": "verified",
         "transaction_id": transaction_id,
         "action_id": action_id,
         "action": action,
         "timestamp": _timestamp(),
-        "verification_version": VERIFICATION_VERSION
+        "verification_version": (
+            VERIFICATION_VERSION
+        ),
     }
 
 
@@ -209,19 +367,49 @@ def _base_result(
 # VERIFICATION
 # ============================================================
 
-def verify_action(action_result):
+def verify_action(
+    action_result: dict[str, Any],
+    ground_truth: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Verify the outcome of an Action Engine decision.
+
+    Parameters
+    ----------
+    action_result:
+        Result returned by Action Engine.
+
+    ground_truth:
+        Optional payment-event ground truth.
+
+        Expected fields:
+
+            actual_recovery
+            recovered_amount
+
+    Verification behaviour
+    ----------------------
+
+    If ground_truth is supplied:
+        Dataset ground truth is authoritative.
+
+    If ground_truth is not supplied:
+        Deterministic fallback is used for recoverable actions.
 
     Possible verification states:
 
         RECOVERED
         NOT_RECOVERED
         PENDING
+        NOT_EXECUTED
 
-    Revenue is counted as recovered only when verification
-    explicitly confirms recovery.
+    Revenue is counted as recovered only when the
+    verification result confirms recovery.
     """
+
+    # --------------------------------------------------------
+    # Validate action result
+    # --------------------------------------------------------
 
     validate_action_result(
         action_result
@@ -248,70 +436,241 @@ def verify_action(action_result):
     )
 
     # --------------------------------------------------------
-    # Action was not executed
+    # Validate ground truth when supplied
     # --------------------------------------------------------
+
+    normalized_ground_truth = None
+
+    if ground_truth is not None:
+
+        normalized_ground_truth = (
+            validate_ground_truth(
+                ground_truth
+            )
+        )
+
+    # ========================================================
+    # ACTION NOT EXECUTED
+    # ========================================================
 
     if not executed:
+
         result = _base_result(
             transaction_id,
             action_id,
-            action
+            action,
         )
 
         result.update({
-            "verification_status": "NOT_RECOVERED",
-            "recovered": False,
-            "revenue_recovered": 0.0,
-            "amount_at_risk": amount,
-            "reason": (
-                "Recovery action was not executed."
-            )
+
+            "verification_status":
+                "NOT_RECOVERED",
+
+            "recovered":
+                False,
+
+            "revenue_recovered":
+                0.0,
+
+            "amount_at_risk":
+                amount,
+
+            "ground_truth":
+                normalized_ground_truth,
+
+            "actual_recovery":
+                (
+                    normalized_ground_truth[
+                        "actual_recovery"
+                    ]
+                    if normalized_ground_truth
+                    is not None
+                    else None
+                ),
+
+            "actual_recovered_amount":
+                (
+                    normalized_ground_truth[
+                        "recovered_amount"
+                    ]
+                    if normalized_ground_truth
+                    is not None
+                    else 0.0
+                ),
+
+            "reason":
+                "Recovery action was not executed.",
         })
 
         return result
 
-    # --------------------------------------------------------
-    # Actions requiring downstream processing
-    # --------------------------------------------------------
+    # ========================================================
+    # PENDING / DOWNSTREAM ACTION
+    # ========================================================
 
     if action in PENDING_ACTIONS:
+
         result = _base_result(
             transaction_id,
             action_id,
-            action
+            action,
         )
 
-        result.update({
-            "verification_status": "PENDING",
-            "recovered": False,
-            "revenue_recovered": 0.0,
-            "amount_at_risk": amount,
-            "reason": (
-                "Action requires downstream human "
-                "or external verification."
+        actual_recovery = None
+        actual_recovered_amount = 0.0
+
+        if normalized_ground_truth is not None:
+
+            actual_recovery = (
+                normalized_ground_truth[
+                    "actual_recovery"
+                ]
             )
+
+            actual_recovered_amount = (
+                normalized_ground_truth[
+                    "recovered_amount"
+                ]
+            )
+
+        result.update({
+
+            "verification_status":
+                "PENDING",
+
+            "recovered":
+                False,
+
+            "revenue_recovered":
+                0.0,
+
+            "amount_at_risk":
+                amount,
+
+            "ground_truth":
+                normalized_ground_truth,
+
+            "actual_recovery":
+                actual_recovery,
+
+            "actual_recovered_amount":
+                actual_recovered_amount,
+
+            "reason":
+                "Action requires downstream human "
+                "or external verification.",
         })
 
         return result
 
-    # --------------------------------------------------------
-    # Unsupported verification action
-    # --------------------------------------------------------
+    # ========================================================
+    # UNSUPPORTED ACTION
+    # ========================================================
 
     if action not in RECOVERABLE_ACTIONS:
+
         raise ValueError(
             "Unsupported verification action: "
             + action
         )
 
-    # --------------------------------------------------------
-    # Deterministic recovery verification
-    # --------------------------------------------------------
+    # ========================================================
+    # DATASET GROUND TRUTH MODE
+    # ========================================================
+
+    if normalized_ground_truth is not None:
+
+        actual_recovery = (
+            normalized_ground_truth[
+                "actual_recovery"
+            ]
+        )
+
+        actual_recovered_amount = (
+            normalized_ground_truth[
+                "recovered_amount"
+            ]
+        )
+
+        if actual_recovery:
+
+            verification_status = (
+                "RECOVERED"
+            )
+
+            recovered = True
+
+            revenue_recovered = (
+                actual_recovered_amount
+            )
+
+            reason = (
+                "Payment recovery confirmed "
+                "by supplied ground truth."
+            )
+
+        else:
+
+            verification_status = (
+                "NOT_RECOVERED"
+            )
+
+            recovered = False
+
+            revenue_recovered = 0.0
+
+            reason = (
+                "Action executed but supplied "
+                "ground truth indicates that "
+                "payment was not recovered."
+            )
+
+        result = _base_result(
+            transaction_id,
+            action_id,
+            action,
+        )
+
+        result.update({
+
+            "verification_status":
+                verification_status,
+
+            "recovered":
+                recovered,
+
+            "revenue_recovered":
+                revenue_recovered,
+
+            "amount_at_risk":
+                amount,
+
+            "ground_truth":
+                normalized_ground_truth,
+
+            "actual_recovery":
+                actual_recovery,
+
+            "actual_recovered_amount":
+                actual_recovered_amount,
+
+            "verification_source":
+                "dataset_ground_truth",
+
+            "reason":
+                reason,
+        })
+
+        return result
+
+    # ========================================================
+    # DETERMINISTIC FALLBACK MODE
+    # ========================================================
 
     recovered = deterministic_recovery_check(
         transaction_id,
         action_id,
-        action
+        action,
     )
 
     if recovered:
@@ -322,8 +681,13 @@ def verify_action(action_result):
 
         revenue_recovered = amount
 
+        actual_recovery = True
+
+        actual_recovered_amount = amount
+
         reason = (
-            "Payment recovery confirmed by simulation."
+            "Payment recovery confirmed by "
+            "deterministic simulation fallback."
         )
 
     else:
@@ -334,18 +698,24 @@ def verify_action(action_result):
 
         revenue_recovered = 0.0
 
+        actual_recovery = False
+
+        actual_recovered_amount = 0.0
+
         reason = (
-            "Recovery action executed but payment "
-            "was not recovered."
+            "Recovery action executed but "
+            "deterministic simulation indicates "
+            "payment was not recovered."
         )
 
     result = _base_result(
         transaction_id,
         action_id,
-        action
+        action,
     )
 
     result.update({
+
         "verification_status":
             verification_status,
 
@@ -358,8 +728,20 @@ def verify_action(action_result):
         "amount_at_risk":
             amount,
 
+        "ground_truth":
+            None,
+
+        "actual_recovery":
+            actual_recovery,
+
+        "actual_recovered_amount":
+            actual_recovered_amount,
+
+        "verification_source":
+            "deterministic_fallback",
+
         "reason":
-            reason
+            reason,
     })
 
     return result
@@ -369,21 +751,26 @@ def verify_action(action_result):
 # PERSISTENCE
 # ============================================================
 
-def save_verification_result(result):
+def save_verification_result(
+    result: dict[str, Any],
+) -> str:
     """
-    Persist a verification result as JSON.
-
-    One transaction produces one audit result file.
+    Persist one verification result as JSON.
     """
 
-    if not isinstance(result, dict):
+    if not isinstance(
+        result,
+        dict,
+    ):
         raise TypeError(
             "result must be a dictionary."
         )
 
     if "transaction_id" not in result:
+
         raise ValueError(
-            "Verification result missing transaction_id."
+            "Verification result missing "
+            "transaction_id."
         )
 
     transaction_id = str(
@@ -391,30 +778,33 @@ def save_verification_result(result):
     ).strip()
 
     if not transaction_id:
+
         raise ValueError(
             "transaction_id cannot be empty."
         )
 
     os.makedirs(
         VERIFICATION_DIR,
-        exist_ok=True
+        exist_ok=True,
     )
 
     path = os.path.join(
         VERIFICATION_DIR,
-        f"{transaction_id}.json"
+        f"{transaction_id}.json",
     )
 
     with open(
         path,
         "w",
-        encoding="utf-8"
+        encoding="utf-8",
     ) as file:
 
         json.dump(
             result,
             file,
-            indent=2
+            indent=2,
+            ensure_ascii=False,
+            default=str,
         )
 
     return path
@@ -424,63 +814,57 @@ def save_verification_result(result):
 # DEMO / CLI
 # ============================================================
 
-def main():
-    """
-    Demonstration entry point.
-
-    This is deliberately separated from the core verification
-    logic so it can be tested independently.
-    """
+def main() -> dict[str, Any]:
 
     demo_action_result = {
-        "status": "success",
-        "action_id": "ACT_DEMO_001",
-        "transaction_id": "TXN_DEMO_001",
-        "action": "RETRY_PAYMENT",
-        "executed": True,
-        "simulation": True,
-        "attempt_count_before": 1,
-        "attempt_count_after": 2,
-        "amount": 5000.0
+
+        "status":
+            "success",
+
+        "action_id":
+            "ACT_DEMO_001",
+
+        "transaction_id":
+            "TXN_DEMO_001",
+
+        "action":
+            "RETRY_PAYMENT",
+
+        "executed":
+            True,
+
+        "simulation":
+            True,
+
+        "attempt_count_before":
+            1,
+
+        "attempt_count_after":
+            2,
+
+        "amount":
+            5000.0,
     }
 
-    try:
+    result = verify_action(
+        demo_action_result
+    )
 
-        result = verify_action(
-            demo_action_result
+    result["result_file"] = (
+        save_verification_result(
+            result
         )
+    )
 
-        result["result_file"] = (
-            save_verification_result(
-                result
-            )
+    print(
+        json.dumps(
+            result,
+            indent=2,
+            ensure_ascii=False,
         )
+    )
 
-        print(
-            json.dumps(
-                result,
-                indent=2
-            )
-        )
-
-        return result
-
-    except Exception as error:
-
-        error_result = {
-            "status": "error",
-            "error_type": type(error).__name__,
-            "error": str(error)
-        }
-
-        print(
-            json.dumps(
-                error_result,
-                indent=2
-            )
-        )
-
-        raise
+    return result
 
 
 if __name__ == "__main__":
