@@ -257,6 +257,65 @@ The tests cover:
 * Verification outcomes.
 * Pipeline integration.
 * Edge cases and failure handling.
+### Alternative startup method
+
+If Docker is unavailable or the Docker setup does not work, the application can also be run directly using Python.
+
+**Prerequisites:**
+
+* Python 3.11.9
+* Git
+
+**1. Create and activate a virtual environment**
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+**2. Install dependencies**
+
+```powershell
+pip install -r requirements.txt
+```
+
+**3. Start the FastAPI backend**
+
+```powershell
+python -m src.api.main
+```
+
+The API will be available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+**4. Start the frontend**
+
+Open a second terminal:
+
+```powershell
+cd frontend
+python -m http.server 5500
+```
+
+Open the dashboard:
+
+```text
+http://localhost:5500/
+```
+
+**5. Open the API documentation**
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+This alternative method allows the backend and frontend to be run locally without Docker.
+
 
 ## Limitations
 
